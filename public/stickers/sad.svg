@@ -1,0 +1,30 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg-sad" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#2a3245"/>
+      <stop offset="100%" stop-color="#121522"/>
+    </radialGradient>
+    <radialGradient id="fur-sad" cx="45%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#e6bd7d"/>
+      <stop offset="100%" stop-color="#c08f4c"/>
+    </radialGradient>
+  </defs>
+  <circle cx="100" cy="100" r="98" fill="url(#bg-sad)"/>
+  <circle cx="52" cy="58" r="26" fill="#bd8140" transform="rotate(6 52 58)"/>
+  <circle cx="148" cy="58" r="26" fill="#bd8140" transform="rotate(-6 148 58)"/>
+  <circle cx="52" cy="60" r="15" fill="#8a5a2e"/>
+  <circle cx="148" cy="60" r="15" fill="#8a5a2e"/>
+  <ellipse cx="100" cy="114" rx="72" ry="66" fill="url(#fur-sad)"/>
+  <ellipse cx="48" cy="130" rx="24" ry="20" fill="#eec483"/>
+  <ellipse cx="152" cy="130" rx="24" ry="20" fill="#eec483"/>
+  <!-- droopy sad eyes -->
+  <ellipse cx="74" cy="104" rx="8" ry="10" fill="#3a2410"/>
+  <ellipse cx="126" cy="104" rx="8" ry="10" fill="#3a2410"/>
+  <path d="M60 92 Q74 84 86 92" stroke="#3a2410" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M114 92 Q126 84 140 92" stroke="#3a2410" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- single tear -->
+  <path d="M74 116 q-4 12 0 20 q4 -4 0 -20 Z" fill="#7ecbff"/>
+  <ellipse cx="100" cy="122" rx="9" ry="7" fill="#5c3a1e"/>
+  <!-- sad mouth -->
+  <path d="M82 144 Q100 132 118 144" stroke="#5c3a1e" stroke-width="6" fill="none" stroke-linecap="round"/>
+</svg>

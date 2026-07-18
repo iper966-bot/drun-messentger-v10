@@ -1,0 +1,29 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg-sleep" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#242440"/>
+      <stop offset="100%" stop-color="#0f0f20"/>
+    </radialGradient>
+    <radialGradient id="fur-sleep" cx="45%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#e8bd7c"/>
+      <stop offset="100%" stop-color="#c8964e"/>
+    </radialGradient>
+  </defs>
+  <circle cx="100" cy="100" r="98" fill="url(#bg-sleep)"/>
+  <circle cx="52" cy="58" r="26" fill="#bd8140"/>
+  <circle cx="148" cy="58" r="26" fill="#bd8140"/>
+  <circle cx="52" cy="60" r="15" fill="#8a5a2e"/>
+  <circle cx="148" cy="60" r="15" fill="#8a5a2e"/>
+  <ellipse cx="100" cy="116" rx="72" ry="64" fill="url(#fur-sleep)"/>
+  <ellipse cx="48" cy="130" rx="24" ry="20" fill="#eec483"/>
+  <ellipse cx="152" cy="130" rx="24" ry="20" fill="#eec483"/>
+  <!-- closed sleepy eyes -->
+  <path d="M62 104 Q75 100 88 104" stroke="#3a2410" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M112 104 Q125 100 138 104" stroke="#3a2410" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <ellipse cx="100" cy="122" rx="9" ry="7" fill="#5c3a1e"/>
+  <path d="M88 138 Q100 144 112 138" stroke="#5c3a1e" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- zzz -->
+  <text x="140" y="55" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#a8b8ff">z</text>
+  <text x="155" y="40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#a8b8ff">z</text>
+  <text x="166" y="28" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#a8b8ff">z</text>
+</svg>

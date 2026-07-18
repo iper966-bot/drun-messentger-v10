@@ -1,0 +1,32 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg-wink" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#3a2a55"/>
+      <stop offset="100%" stop-color="#1a1030"/>
+    </radialGradient>
+    <radialGradient id="fur-wink" cx="45%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#f0c384"/>
+      <stop offset="100%" stop-color="#d99e56"/>
+    </radialGradient>
+  </defs>
+  <circle cx="100" cy="100" r="98" fill="url(#bg-wink)"/>
+  <circle cx="52" cy="55" r="26" fill="#c98a45"/>
+  <circle cx="148" cy="55" r="26" fill="#c98a45"/>
+  <circle cx="52" cy="57" r="15" fill="#8a5a2e"/>
+  <circle cx="148" cy="57" r="15" fill="#8a5a2e"/>
+  <ellipse cx="100" cy="112" rx="72" ry="66" fill="url(#fur-wink)"/>
+  <ellipse cx="48" cy="128" rx="26" ry="22" fill="#f3cd94"/>
+  <ellipse cx="152" cy="128" rx="26" ry="22" fill="#f3cd94"/>
+  <ellipse cx="48" cy="132" rx="12" ry="9" fill="#f0a3a3" opacity="0.55"/>
+  <ellipse cx="152" cy="132" rx="12" ry="9" fill="#f0a3a3" opacity="0.55"/>
+  <!-- one open eye -->
+  <circle cx="76" cy="102" r="9" fill="#3a2410"/>
+  <circle cx="79" cy="99" r="2.5" fill="#fff"/>
+  <!-- winking closed eye -->
+  <path d="M114 102 Q126 96 138 102" stroke="#3a2410" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <ellipse cx="100" cy="118" rx="9" ry="7" fill="#5c3a1e"/>
+  <!-- playful smile -->
+  <path d="M80 134 Q100 150 124 132" stroke="#5c3a1e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- sparkle -->
+  <path d="M150 78 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 Z" fill="#f7cf6a"/>
+</svg>

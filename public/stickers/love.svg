@@ -1,0 +1,30 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg-love" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#4a2a45"/>
+      <stop offset="100%" stop-color="#220f28"/>
+    </radialGradient>
+    <radialGradient id="fur-love" cx="45%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#f0c384"/>
+      <stop offset="100%" stop-color="#d99e56"/>
+    </radialGradient>
+  </defs>
+  <circle cx="100" cy="100" r="98" fill="url(#bg-love)"/>
+  <circle cx="52" cy="55" r="26" fill="#c98a45"/>
+  <circle cx="148" cy="55" r="26" fill="#c98a45"/>
+  <circle cx="52" cy="57" r="15" fill="#8a5a2e"/>
+  <circle cx="148" cy="57" r="15" fill="#8a5a2e"/>
+  <ellipse cx="100" cy="112" rx="72" ry="66" fill="url(#fur-love)"/>
+  <ellipse cx="48" cy="128" rx="26" ry="22" fill="#f3cd94"/>
+  <ellipse cx="152" cy="128" rx="26" ry="22" fill="#f3cd94"/>
+  <ellipse cx="48" cy="132" rx="14" ry="10" fill="#f07a7a" opacity="0.65"/>
+  <ellipse cx="152" cy="132" rx="14" ry="10" fill="#f07a7a" opacity="0.65"/>
+  <!-- heart eyes -->
+  <path d="M70 92 C64 84 52 86 52 96 C52 104 62 112 70 118 C78 112 88 104 88 96 C88 86 76 84 70 92 Z" fill="#ff5c7a"/>
+  <path d="M130 92 C124 84 112 86 112 96 C112 104 122 112 130 118 C138 112 148 104 148 96 C148 86 136 84 130 92 Z" fill="#ff5c7a"/>
+  <ellipse cx="100" cy="120" rx="9" ry="7" fill="#5c3a1e"/>
+  <path d="M82 136 Q100 150 118 136" stroke="#5c3a1e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- floating small hearts -->
+  <path d="M150 40 C147 36 141 37 141 42 C141 46 146 50 150 53 C154 50 159 46 159 42 C159 37 153 36 150 40 Z" fill="#ff8fa3"/>
+  <path d="M35 165 C33 162 29 163 29 166 C29 169 32 171 35 173 C38 171 41 169 41 166 C41 163 37 162 35 165 Z" fill="#ff8fa3"/>
+</svg>

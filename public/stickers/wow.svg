@@ -1,0 +1,31 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg-wow" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#3a3a55"/>
+      <stop offset="100%" stop-color="#181830"/>
+    </radialGradient>
+    <radialGradient id="fur-wow" cx="45%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#f0c384"/>
+      <stop offset="100%" stop-color="#d99e56"/>
+    </radialGradient>
+  </defs>
+  <circle cx="100" cy="100" r="98" fill="url(#bg-wow)"/>
+  <circle cx="52" cy="52" r="26" fill="#c98a45"/>
+  <circle cx="148" cy="52" r="26" fill="#c98a45"/>
+  <circle cx="52" cy="54" r="15" fill="#8a5a2e"/>
+  <circle cx="148" cy="54" r="15" fill="#8a5a2e"/>
+  <ellipse cx="100" cy="114" rx="72" ry="68" fill="url(#fur-wow)"/>
+  <ellipse cx="48" cy="132" rx="24" ry="20" fill="#f3cd94"/>
+  <ellipse cx="152" cy="132" rx="24" ry="20" fill="#f3cd94"/>
+  <!-- big round surprised eyes -->
+  <circle cx="76" cy="100" r="14" fill="#fff"/>
+  <circle cx="124" cy="100" r="14" fill="#fff"/>
+  <circle cx="78" cy="102" r="7" fill="#3a2410"/>
+  <circle cx="122" cy="102" r="7" fill="#3a2410"/>
+  <circle cx="80" cy="99" r="2.5" fill="#fff"/>
+  <circle cx="124" cy="99" r="2.5" fill="#fff"/>
+  <ellipse cx="100" cy="122" rx="9" ry="7" fill="#5c3a1e"/>
+  <!-- round open mouth -->
+  <ellipse cx="100" cy="146" rx="13" ry="16" fill="#5c2a1e"/>
+  <ellipse cx="100" cy="150" rx="8" ry="8" fill="#ff8f8f"/>
+</svg>

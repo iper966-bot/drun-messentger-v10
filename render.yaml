@@ -1,0 +1,38 @@
+# Render Blueprint — описывает сервис для автоматического деплоя.
+# Как использовать: залейте проект в GitHub, затем на Render.com выберите
+# "New +" -> "Blueprint" и укажите этот репозиторий. Render сам создаст
+# сервис по этому файлу. Секреты (JWT_SECRET, OWNER_SIGNUP_CODE) НЕ хранятся
+# здесь — Render сгенерирует/запросит их отдельно (см. sync: false ниже).
+services:
+  - type: web
+    name: drun-messenger
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: OWNER_SIGNUP_CODE
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # Render всегда проксирует трафик через свой балансировщик, поэтому
+      # X-Forwarded-For безопасно доверять — без этого флага бан/rate-limit
+      # по IP будет считать всех пользователей одним и тем же IP (прокси Render).
+      - key: TRUST_PROXY
+        value: "1"
+      # Указываем базе и загрузкам жить на смонтированном Persistent Disk —
+      # иначе Render стирает их при каждом новом деплое.
+      - key: DB_PATH
+        value: /var/data/nova.db
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+    disk:
+      name: drun-data
+      mountPath: /var/data
+      sizeGB: 1

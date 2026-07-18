@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Друн мессенджер</title>
+<link rel="icon" href="/drun-logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div id="authScreen" class="center-screen">
+  <div class="auth-watermark">сделано xzesss_0</div>
+  <div class="auth-card">
+    <div class="logo burm-glow">
+      <img src="/drun-logo.png" alt="Друн">
+    </div>
+    <h1 class="auth-title">Друн</h1>
+    <p class="auth-subtitle" id="authSubtitle">Войдите, чтобы продолжить общение</p>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin">Вход</div>
+      <div class="auth-tab" id="tabRegister">Регистрация</div>
+      <div class="auth-tab" id="tabOwner">Создатель</div>
+    </div>
+
+    <div id="nicknameField" class="hidden">
+      <div class="auth-field-label">Ник (можно менять когда угодно)</div>
+      <input class="auth-input" id="authNickname" placeholder="Например, Саша" autocomplete="nickname">
+    </div>
+
+    <div class="auth-field-label" id="usernameLabel">Имя пользователя</div>
+    <input class="auth-input" id="authUsername" placeholder="Логин латиницей (по нему вас ищут)" autocomplete="username">
+    <div class="auth-hint-small hidden" id="usernameHint">3-20 символов: латинские буквы, цифры, «_» и «.». Изменить потом нельзя.</div>
+
+    <input class="auth-input" id="authPassword" type="password" placeholder="Пароль" autocomplete="current-password">
+
+    <div id="ownerCodeField" class="hidden">
+      <div class="auth-field-label">Код доступа создателя</div>
+      <input class="auth-input" id="authOwnerCode" type="password" placeholder="Код доступа">
+    </div>
+
+    <div id="twofaField" class="hidden">
+      <div class="auth-field-label">Код двухфакторной аутентификации</div>
+      <input class="auth-input" id="authTwofaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 цифр из приложения">
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+    <button class="auth-button" id="authSubmit">Войти</button>
+    <p class="auth-hint">Ник — это то, что видят собеседники, его можно менять в любой момент. Имя пользователя нужно только для поиска и входа.</p>
+  </div>
+</div>
+
+<div id="appScreen" class="app hidden">
+  <div class="rail">
+    <div class="logo">
+      <img src="/drun-logo.png" alt="Друн">
+    </div>
+    <div class="logout-icon" id="postsBtn" title="Посты">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    </div>
+    <div class="logout-icon" id="hammamBtn" title="Хаммам">
+      <span style="font-size:19px;line-height:1;">♨️</span>
+    </div>
+    <div class="logout-icon" id="radioBtn" title="Друн ФМ">
+      <span style="font-size:19px;line-height:1;">📻</span>
+    </div>
+    <div style="flex:1;"></div>
+    <button class="balance-pill" id="balancePill" title="Чекушки">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2h6M10 2v5.5L5.5 15A3 3 0 008 20h8a3 3 0 002.5-5L14 7.5V2"/></svg>
+      <span id="balanceValueRail">0</span>
+    </button>
+    <button class="avatar-btn" id="meAvatarBtn" title="Профиль">
+      <div class="me-avatar" id="meAvatar"></div>
+    </button>
+    <div class="logout-icon" id="settingsBtn" title="Настройки">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </div>
+  </div>
+
+  <div class="chatlist">
+    <div class="chatlist-head">
+      <div class="chatlist-title-row">
+        <h1 class="chatlist-title">Друн</h1>
+        <div class="mobile-controls">
+          <div class="logout-icon" id="postsBtnMobile" title="Посты">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <div class="logout-icon" id="hammamBtnMobile" title="Хаммам">
+            <span style="font-size:18px;line-height:1;">♨️</span>
+          </div>
+          <div class="logout-icon" id="radioBtnMobile" title="Друн ФМ">
+            <span style="font-size:18px;line-height:1;">📻</span>
+          </div>
+          <button class="balance-pill" id="balancePillMobile" title="Чекушки">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2h6M10 2v5.5L5.5 15A3 3 0 008 20h8a3 3 0 002.5-5L14 7.5V2"/></svg>
+            <span id="balanceValueMobile">0</span>
+          </button>
+          <button class="avatar-btn" id="meAvatarBtnMobile" title="Профиль">
+            <div class="me-avatar" id="meAvatarMobile"></div>
+          </button>
+          <div class="logout-icon" id="settingsBtnMobile" title="Настройки">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </div>
+        </div>
+        <button class="new-chat-btn" id="newChatBtn" title="Новый чат">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input id="searchInput" placeholder="Найти собеседника по имени пользователя…">
+      </div>
+    </div>
+    <div class="chat-item" id="radioChatItem" title="Друн ФМ" style="margin:0 10px 4px;">
+      <div class="avatar" style="background:linear-gradient(135deg,#ff9ecb,#8b5cf6);font-size:20px;">📻</div>
+      <div class="chat-name-wrap">
+        <div class="chat-name">Друн ФМ</div>
+        <div class="chat-sub">Радио · слушать сейчас</div>
+      </div>
+    </div>
+    <div class="chats" id="chatList"></div>
+  </div>
+
+  <div class="conversation" id="conversation">
+    <div class="empty-state">
+      <div class="logo burm-glow" style="width:96px;height:96px;background:#000;"><img src="/drun-logo.png" alt="Друн" style="border-radius:50%;"></div>
+      <div>Выберите друга слева, чтобы начать переписку</div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="avatarFileInput" accept="image/*" class="hidden">
+<input type="file" id="postFileInput" accept="image/*,video/mp4,video/webm,video/quicktime" class="hidden">
+
+<div class="conn-status" id="connStatus">офлайн</div>
+<script src="/app.js"></script>
+</body>
+</html>
