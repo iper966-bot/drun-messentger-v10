@@ -98,6 +98,19 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Централизованный обработчик ошибок: если что-то бросает исключение внутри
+// /api/* (в т.ч. асинхронное, пробрасываемое через next(err)), клиент должен
+// получить понятный JSON, а не HTML-страницу ошибки платформы/Express —
+// именно HTML на месте JSON ломает fetch на фронте ("Unexpected token '<'").
+app.use((err, req, res, next) => {
+  console.error("Необработанная ошибка на", req.method, req.originalUrl, err);
+  if (res.headersSent) return next(err);
+  if (req.path && req.path.startsWith("/api/")) {
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  }
+  res.status(500).send("Внутренняя ошибка сервера");
+});
+
 // Поднимаем HTTPS, если в проект импортированы файлы сертификата и ключа
 // (по умолчанию certs/cert.pem и certs/key.pem). Иначе — обычный HTTP.
 // WebSocket (в т.ч. wss://) прицепляется к тому же серверу автоматически.

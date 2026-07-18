@@ -215,31 +215,6 @@ db.exec(`
   );
 `);
 
-// ---------- Госуслуги (портал "Друн услуги") ----------
-// Разовые услуги за госпошлину: паспорт бурмалдайца, прописка в Хаммаме и т.п.
-// Одна строка на пару (username, service) — услугу можно оформить один раз.
-// full_name/birth_date/birth_place/photo_url/doc_number — только для услуг с
-// анкетой (сейчас "passport"), для остальных остаются NULL.
-db.exec(`
-  CREATE TABLE IF NOT EXISTS user_services (
-    username TEXT NOT NULL,
-    service TEXT NOT NULL,
-    issued_at INTEGER NOT NULL,
-    full_name TEXT,
-    birth_date TEXT,
-    birth_place TEXT,
-    photo_url TEXT,
-    doc_number TEXT,
-    PRIMARY KEY (username, service)
-  );
-`);
-const existingServiceCols = db.prepare("PRAGMA table_info(user_services)").all().map((c) => c.name);
-for (const col of ["full_name", "birth_date", "birth_place", "photo_url", "doc_number", "room_number", "purpose"]) {
-  if (!existingServiceCols.includes(col)) {
-    db.exec(`ALTER TABLE user_services ADD COLUMN ${col} TEXT;`);
-  }
-}
-
 // ---------- Баны ----------
 // Баним по IP (а не только по username), чтобы забаненный не мог просто
 // зарегистрировать новый аккаунт с того же устройства/сети. Username
@@ -251,6 +226,45 @@ db.exec(`
     reason TEXT,
     banned_by TEXT,
     created_at INTEGER NOT NULL
+  );
+`);
+
+// ---------- Друн Услуги: паспорт бурмалдайца ----------
+// Один паспорт на пользователя. Оформляется один раз за госпошлину,
+// после чего служит "ключом" к услугам, которые его требуют (прописка).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS passports (
+    username TEXT PRIMARY KEY,
+    full_name TEXT NOT NULL,
+    birth_date TEXT NOT NULL,
+    birth_place TEXT NOT NULL,
+    photo_url TEXT NOT NULL,
+    doc_number TEXT NOT NULL,
+    issued_at INTEGER NOT NULL
+  );
+`);
+
+// ---------- Друн Услуги: прописка в Хаммаме ----------
+// Требует оформленного паспорта. Комната назначается автоматически
+// (следующий свободный номер), одна прописка на пользователя.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS registrations (
+    username TEXT PRIMARY KEY,
+    purpose TEXT NOT NULL,
+    room_number INTEGER NOT NULL,
+    doc_number TEXT NOT NULL,
+    issued_at INTEGER NOT NULL
+  );
+`);
+
+// ---------- Друн Услуги: подписка на тариф "Бурмал2" ----------
+// Одна активная подписка на пользователя — повторное оформление меняет тариф
+// (и списывает полную стоимость нового тарифа за очередной период).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS burmal2_subscriptions (
+    username TEXT PRIMARY KEY,
+    plan_key TEXT NOT NULL,
+    issued_at INTEGER NOT NULL
   );
 `);
 

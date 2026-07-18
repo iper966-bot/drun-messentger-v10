@@ -1,173 +1,193 @@
-// Госуслуги ("Друн услуги"): разовые услуги за госпошлину.
-// Списание баланса и выдача услуги происходят одной транзакцией на сервере,
-// чтобы клиент не мог подделать факт оплаты (как в играх — источник истины тут).
+// ---------- Друн Услуги: госуслуги и тариф связи "Бурмал2" ----------
+// Эндпоинты для внешних фронтендов (drun-uslugi, burmal2), которые
+// используют тот же аккаунт и тот же баланс чекушек, что и мессенджер.
+// Все списания проходят на сервере — фронтенд только показывает результат.
 const express = require("express");
 const crypto = require("crypto");
 const db = require("../db");
-const { STARTING_BALANCE } = require("../config");
+const { STARTING_BALANCE, SERVICES, BURMAL2_PLANS } = require("../config");
 const { ownUser } = require("../helpers");
 const { authMiddleware } = require("../middleware");
-const { saveDataUrl } = require("../media");
 
 const router = express.Router();
 
-// Каталог услуг. key — стабильный идентификатор (используется в URL и в БД),
-// меняется редко; cost — госпошлина в чекушках. requiresForm — нужна ли анкета
-// для выдачи "документа". requiresPassport — нельзя оформить без готового паспорта.
-const SERVICES = {
-  passport: {
-    key: "passport",
-    title: "Оформление паспорта бурмалдайца",
-    cost: 50,
-    description: "Главный документ, удостоверяющий личность бурмалдайца в Друн-республике.",
-    requiresForm: true,
-    requiresPassport: false,
-  },
-  hammam_registration: {
-    key: "hammam_registration",
-    title: "Прописка в Хаммаме",
-    cost: 20,
-    description: "Регистрация по месту жительства в общественном Хаммаме.",
-    requiresForm: true,
-    requiresPassport: true,
-  },
-};
+function getBalance(username) {
+  const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+  return user.balance == null ? STARTING_BALANCE : user.balance;
+}
 
-function publicService(def, row) {
-  let document = null;
-  if (row) {
-    if (def.key === "passport") {
-      document = {
-        doc_number: row.doc_number,
-        full_name: row.full_name,
-        birth_date: row.birth_date,
-        birth_place: row.birth_place,
-        photo_url: row.photo_url,
-      };
-    } else if (def.key === "hammam_registration") {
-      document = {
-        doc_number: row.doc_number,
-        room_number: row.room_number,
-        purpose: row.purpose,
-      };
-    }
-  }
+function chargeUser(username, cost) {
+  const balance = getBalance(username);
+  if (balance < cost) return null;
+  db.prepare("UPDATE users SET balance = ? WHERE username = ?").run(balance - cost, username);
+  return db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+}
+
+function docNumber(prefix) {
+  // Короткий читаемый номер документа: ПРЕФИКС-XXXXXX (случайные цифры).
+  const digits = crypto.randomInt(100000, 999999);
+  return prefix + "-" + digits;
+}
+
+function passportDocument(row) {
+  if (!row) return null;
   return {
-    key: def.key,
-    title: def.title,
-    cost: def.cost,
-    description: def.description,
-    requiresForm: def.requiresForm,
-    requiresPassport: def.requiresPassport,
-    issued: !!row,
-    issued_at: row ? row.issued_at : null,
-    document,
+    full_name: row.full_name,
+    birth_date: row.birth_date,
+    birth_place: row.birth_place,
+    photo_url: row.photo_url,
+    doc_number: row.doc_number,
   };
 }
 
-// Номер документа: "ДР-" + 8 случайных цифр, для колорита Друн-республики.
-function generateDocNumber() {
-  const digits = crypto.randomInt(0, 100000000).toString().padStart(8, "0");
-  return "ДР-" + digits;
+function registrationDocument(row) {
+  if (!row) return null;
+  return {
+    purpose: row.purpose,
+    room_number: row.room_number,
+    doc_number: row.doc_number,
+  };
 }
 
-// Номер комнаты в Хаммаме — генерируется автоматически при прописке.
-function generateRoomNumber() {
-  const block = "АБВГД"[crypto.randomInt(0, 5)];
-  const num = crypto.randomInt(1, 300);
-  return block + "-" + num;
-}
-
-// Список услуг с отметкой, какие уже оформлены у текущего пользователя.
+// Публичный список госуслуг с текущим статусом оформления для пользователя.
 router.get("/api/services", authMiddleware, (req, res) => {
-  const rows = db.prepare("SELECT * FROM user_services WHERE username = ?").all(req.username);
-  const byKey = new Map(rows.map((r) => [r.service, r]));
-  const services = Object.values(SERVICES).map((def) => publicService(def, byKey.get(def.key)));
+  const passport = db.prepare("SELECT * FROM passports WHERE username = ?").get(req.username);
+  const registration = db.prepare("SELECT * FROM registrations WHERE username = ?").get(req.username);
+
+  const services = Object.entries(SERVICES).map(([key, def]) => {
+    if (key === "passport") {
+      return {
+        key,
+        title: def.title,
+        cost: def.cost,
+        requiresPassport: def.requiresPassport,
+        issued: !!passport,
+        document: passport ? passportDocument(passport) : null,
+      };
+    }
+    if (key === "hammam_registration") {
+      return {
+        key,
+        title: def.title,
+        cost: def.cost,
+        requiresPassport: def.requiresPassport,
+        issued: !!registration,
+        document: registration ? registrationDocument(registration) : null,
+      };
+    }
+    return { key, title: def.title, cost: def.cost, requiresPassport: def.requiresPassport, issued: false };
+  });
+
   res.json({ services });
 });
 
-// Оформление услуги: списывает госпошлину и отмечает услугу как выданную.
-router.post("/api/services/:key/issue", authMiddleware, (req, res) => {
-  const def = SERVICES[req.params.key];
-  if (!def) return res.status(404).json({ error: "Такой услуги не существует" });
-
-  const already = db
-    .prepare("SELECT * FROM user_services WHERE username = ? AND service = ?")
-    .get(req.username, def.key);
-  if (already) {
-    return res.status(400).json({ error: "Услуга уже оформлена", service: publicService(def, already) });
+// Оформление паспорта бурмалдайца — ФИО, дата и место рождения, фото (data URL).
+router.post("/api/services/passport/issue", authMiddleware, (req, res) => {
+  const existing = db.prepare("SELECT * FROM passports WHERE username = ?").get(req.username);
+  if (existing) {
+    return res.status(400).json({ error: "Паспорт уже оформлен" });
   }
 
-  if (def.requiresPassport) {
-    const passport = db
-      .prepare("SELECT * FROM user_services WHERE username = ? AND service = 'passport'")
-      .get(req.username);
-    if (!passport) {
-      return res.status(400).json({ error: "Сначала оформите паспорт бурмалдайца — без него прописка недоступна" });
-    }
+  const { full_name, birth_date, birth_place, photo } = req.body || {};
+  const cleanName = String(full_name || "").trim();
+  const cleanPlace = String(birth_place || "").trim();
+  if (!cleanName) return res.status(400).json({ error: "Укажите ФИО" });
+  if (!birth_date) return res.status(400).json({ error: "Укажите дату рождения" });
+  if (!cleanPlace) return res.status(400).json({ error: "Укажите место рождения" });
+  if (!photo || !/^data:image\/(png|jpeg|jpg|webp);base64,/.test(photo)) {
+    return res.status(400).json({ error: "Загрузите фото" });
+  }
+  if (photo.length > 400000) {
+    return res.status(400).json({ error: "Фото слишком большое, выберите другое" });
   }
 
-  let full_name = null, birth_date = null, birth_place = null, photo_url = null;
-  let room_number = null, purpose = null, doc_number = null;
+  const cost = SERVICES.passport.cost;
+  const updatedUser = chargeUser(req.username, cost);
+  if (!updatedUser) return res.status(400).json({ error: "Недостаточно чекушек" });
 
-  if (def.key === "passport") {
-    const body = req.body || {};
-    full_name = String(body.full_name || "").trim();
-    birth_date = String(body.birth_date || "").trim();
-    birth_place = String(body.birth_place || "").trim();
-    const photo = body.photo;
+  const doc_number = docNumber("ПАСП");
+  const now = Date.now();
+  db.prepare(
+    "INSERT INTO passports (username, full_name, birth_date, birth_place, photo_url, doc_number, issued_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  ).run(req.username, cleanName, birth_date, cleanPlace, photo, doc_number, now);
 
-    if (!full_name || full_name.length < 2 || full_name.length > 100) {
-      return res.status(400).json({ error: "Укажите ФИО (от 2 до 100 символов)" });
-    }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
-      return res.status(400).json({ error: "Укажите корректную дату рождения" });
-    }
-    const birthTime = Date.parse(birth_date);
-    if (Number.isNaN(birthTime) || birthTime > Date.now()) {
-      return res.status(400).json({ error: "Дата рождения не может быть в будущем" });
-    }
-    if (!birth_place || birth_place.length < 2 || birth_place.length > 100) {
-      return res.status(400).json({ error: "Укажите место рождения (от 2 до 100 символов)" });
-    }
-    if (!photo) {
-      return res.status(400).json({ error: "Загрузите фото для паспорта" });
-    }
-    const saved = saveDataUrl(photo);
-    if (saved.error) return res.status(400).json({ error: saved.error });
-    if (saved.kind !== "image") return res.status(400).json({ error: "Фото должно быть изображением" });
-    photo_url = saved.url;
-    doc_number = generateDocNumber();
-  } else if (def.key === "hammam_registration") {
-    const body = req.body || {};
-    purpose = String(body.purpose || "").trim();
-    if (!purpose || purpose.length < 2 || purpose.length > 200) {
-      return res.status(400).json({ error: "Укажите цель прописки (от 2 до 200 символов)" });
-    }
-    room_number = generateRoomNumber();
-    doc_number = generateDocNumber();
+  const row = db.prepare("SELECT * FROM passports WHERE username = ?").get(req.username);
+  res.json({
+    user: ownUser(updatedUser),
+    service: { key: "passport", document: passportDocument(row) },
+  });
+});
+
+// Прописка в Хаммаме — требует ранее оформленный паспорт, комната назначается автоматически.
+router.post("/api/services/hammam_registration/issue", authMiddleware, (req, res) => {
+  const passport = db.prepare("SELECT * FROM passports WHERE username = ?").get(req.username);
+  if (!passport) {
+    return res.status(400).json({ error: "Сначала оформите паспорт бурмалдайца" });
+  }
+  const existing = db.prepare("SELECT * FROM registrations WHERE username = ?").get(req.username);
+  if (existing) {
+    return res.status(400).json({ error: "Прописка уже оформлена" });
   }
 
-  const user = db.prepare("SELECT * FROM users WHERE username = ?").get(req.username);
-  const balance = user.balance == null ? STARTING_BALANCE : user.balance;
-  if (balance < def.cost) {
-    return res.status(400).json({ error: "Недостаточно чекушек для оплаты госпошлины" });
+  const { purpose } = req.body || {};
+  const cleanPurpose = String(purpose || "").trim();
+  if (!cleanPurpose) return res.status(400).json({ error: "Укажите цель прописки" });
+
+  const cost = SERVICES.hammam_registration.cost;
+  const updatedUser = chargeUser(req.username, cost);
+  if (!updatedUser) return res.status(400).json({ error: "Недостаточно чекушек" });
+
+  // Комната — порядковый номер следующей выданной прописки.
+  const count = db.prepare("SELECT COUNT(*) AS c FROM registrations").get().c;
+  const room_number = 101 + count;
+  const doc_number = docNumber("ПРОП");
+  const now = Date.now();
+  db.prepare(
+    "INSERT INTO registrations (username, purpose, room_number, doc_number, issued_at) VALUES (?, ?, ?, ?, ?)"
+  ).run(req.username, cleanPurpose, room_number, doc_number, now);
+
+  const row = db.prepare("SELECT * FROM registrations WHERE username = ?").get(req.username);
+  res.json({
+    user: ownUser(updatedUser),
+    service: { key: "hammam_registration", document: registrationDocument(row) },
+  });
+});
+
+// ---------- Тариф связи "Бурмал2" ----------
+// :plan — один из ключей BURMAL2_PLANS (eco / plus / xxl).
+router.post("/api/services/burmal2/:plan/issue", authMiddleware, (req, res) => {
+  const planKey = req.params.plan;
+  const plan = BURMAL2_PLANS[planKey];
+  if (!plan) {
+    return res.status(404).json({ error: "Такой услуги не существует" });
   }
+
+  const updatedUser = chargeUser(req.username, plan.cost);
+  if (!updatedUser) return res.status(400).json({ error: "Недостаточно чекушек" });
 
   const now = Date.now();
-  db.prepare("UPDATE users SET balance = ? WHERE username = ?").run(balance - def.cost, req.username);
   db.prepare(
-    `INSERT INTO user_services
-       (username, service, issued_at, full_name, birth_date, birth_place, photo_url, doc_number, room_number, purpose)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(req.username, def.key, now, full_name, birth_date, birth_place, photo_url, doc_number, room_number, purpose);
+    `INSERT INTO burmal2_subscriptions (username, plan_key, issued_at) VALUES (?, ?, ?)
+     ON CONFLICT(username) DO UPDATE SET plan_key = excluded.plan_key, issued_at = excluded.issued_at`
+  ).run(req.username, planKey, now);
 
-  const row = db
-    .prepare("SELECT * FROM user_services WHERE username = ? AND service = ?")
-    .get(req.username, def.key);
   res.json({
-    service: publicService(def, row),
-    user: ownUser(db.prepare("SELECT * FROM users WHERE username = ?").get(req.username)),
+    user: ownUser(updatedUser),
+    subscription: { plan_key: planKey, title: plan.title, cost: plan.cost, issued_at: now },
+  });
+});
+
+// Текущая подписка на Бурмал2 (для отображения в кабинетах Бурмал2 / Друн Услуги).
+router.get("/api/services/burmal2/status", authMiddleware, (req, res) => {
+  const row = db.prepare("SELECT * FROM burmal2_subscriptions WHERE username = ?").get(req.username);
+  if (!row) return res.json({ active: false });
+  const plan = BURMAL2_PLANS[row.plan_key];
+  res.json({
+    active: true,
+    plan_key: row.plan_key,
+    title: plan ? plan.title : row.plan_key,
+    cost: plan ? plan.cost : null,
+    issued_at: row.issued_at,
   });
 });
 

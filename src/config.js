@@ -196,6 +196,30 @@ const HAMMAM_DECOR_STAGES = [
   { min: 8, label: "Ультра хаммам бурмалдайца", emoji: "👑" },
 ];
 
+// ---------- Друн Услуги: госуслуги (паспорт, прописка) ----------
+// requiresPassport — нельзя оформить без ранее выданного паспорта.
+const SERVICES = {
+  passport: {
+    title: "Оформление паспорта бурмалдайца",
+    cost: 30,
+    requiresPassport: false,
+  },
+  hammam_registration: {
+    title: "Прописка в Хаммаме",
+    cost: 20,
+    requiresPassport: true,
+  },
+};
+
+// ---------- Друн Услуги: тарифы оператора связи "Бурмал2" ----------
+// Цены в чекушках — той же валюте, что и весь остальной проект
+// (см. STARTING_BALANCE выше: чекушки не покупаются за деньги).
+const BURMAL2_PLANS = {
+  eco: { title: "Бурмалда Эко", cost: 20 },
+  plus: { title: "Бурмалда +", cost: 60 },
+  xxl: { title: "Бурмалдаец XXL", cost: 150 },
+};
+
 module.exports = {
   PORT,
   JWT_SECRET,
@@ -218,4 +242,6 @@ module.exports = {
   USERNAME_RE,
   HAMMAM_PARAMS,
   HAMMAM_DECOR_STAGES,
+  SERVICES,
+  BURMAL2_PLANS,
 };
